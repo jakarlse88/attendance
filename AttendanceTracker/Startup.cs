@@ -1,11 +1,14 @@
 using AttendanceTracker.Data;
+using AttendanceTracker.Models.DTO.Validators;
 using AttendanceTracker.Repositories;
+using AttendanceTracker.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
+using FluentValidation.AspNetCore;
 
 namespace AttendanceTracker
 {
@@ -21,13 +24,18 @@ namespace AttendanceTracker
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services
+                .AddControllers()
+                .AddFluentValidation(fv => 
+                    fv.RegisterValidatorsFromAssemblyContaining<ClassSessionDtoValidator>());
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("AttendanceTrackerRef"))
             );
 
             services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
+
+            services.AddScoped<IClassSessionService, ClassSessionService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

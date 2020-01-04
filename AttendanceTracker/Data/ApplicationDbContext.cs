@@ -1,5 +1,3 @@
-using System;
-using System.Reflection;
 using AttendanceTracker.Models;
 using Microsoft.EntityFrameworkCore;
 

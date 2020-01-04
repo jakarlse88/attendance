@@ -31,7 +31,7 @@ namespace AttendanceTracker.Test
                 Assert.Empty(context.ClassSession);
                 
                 // Act
-                repoWrapper.ClassSession.Create(null);
+                repoWrapper.ClassSession.Add(null);
                 
                 repoWrapper.Save();
             }
@@ -62,7 +62,7 @@ namespace AttendanceTracker.Test
                 Assert.Empty(context.ClassSession);
                 
                 // Act
-                repoWrapper.ClassSession.Create(testEntity);
+                repoWrapper.ClassSession.Add(testEntity);
                 
                 repoWrapper.Save();
             }

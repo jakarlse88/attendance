@@ -1,8 +1,8 @@
 namespace AttendanceTracker.Models
 {
-    public class Student
+    public class Student : EntityBase
     {
-        public int Id { get; set; }
+        public override int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public Grade Grade { get; set; }

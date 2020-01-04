@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace AttendanceTracker.Models
 {
-    public class ClassSession
+    public class ClassSession : EntityBase
     {
-        public int Id { get; set; }
+        public override int Id { get; set; }
         public DateTime Date { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }

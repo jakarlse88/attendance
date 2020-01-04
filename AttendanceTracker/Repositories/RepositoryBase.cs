@@ -1,9 +1,12 @@
 using System.Linq;
+using System.Threading.Tasks;
 using AttendanceTracker.Data;
+using AttendanceTracker.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace AttendanceTracker.Repositories
 {
-    public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
+    public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : EntityBase
     {
         private readonly ApplicationDbContext _context;
 
@@ -16,13 +19,20 @@ namespace AttendanceTracker.Repositories
         // {
         //     throw new System.NotImplementedException();
         // }
-        //
-        // public IQueryable<T> Search()
-        // {
-        //     throw new System.NotImplementedException();
-        // }
+        
+        public async Task<T> SearchByIdAsync(int id)
+        {
+            var result = 
+                await _context
+                    .Set<T>()
+                    .Where(
+                        x => x.Id == id)
+                    .FirstOrDefaultAsync();
 
-        public void Create(T entity)
+            return result;
+        }
+
+        public void Add(T entity)
         {
             if (entity != null)
             {
@@ -34,7 +44,7 @@ namespace AttendanceTracker.Repositories
         // {
         //     throw new System.NotImplementedException();
         // }
-        //
+        
         // public void Delete(T entity)
         // {
         //     throw new System.NotImplementedException();

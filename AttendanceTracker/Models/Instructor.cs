@@ -2,9 +2,9 @@ using System.Collections.Generic;
 
 namespace AttendanceTracker.Models
 {
-    public class Instructor
+    public class Instructor : EntityBase
     {
-        public int Id { get; set; }
+        public override int Id { get; set; }
         public string FirstName { get; set; }
         public string MiddleName { get; set; }
         public string LastName { get; set; }
