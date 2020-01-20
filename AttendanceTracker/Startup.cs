@@ -36,6 +36,29 @@ namespace AttendanceTracker
             services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
 
             services.AddScoped<IClassSessionService, ClassSessionService>();
+
+            services.AddSwaggerDocument(config =>
+            {
+                config.PostProcess = document =>
+                {
+                    document.Info.Version = "v0.1";
+                    document.Info.Title = "AttendanceTrackerAPI";
+                    document.Info.Description =
+                        "A simple ASP.NET Core API for tracking the attendance of students of a sports club.";
+                    document.Info.TermsOfService = "None";
+                    document.Info.Contact = new NSwag.OpenApiContact
+                    {
+                        Name = "Jon Karlsen",
+                        Email = "karlsen.jonarild@gmail.com",
+                        Url = "https://www.github.com/jakarlse88"
+                    };
+                    document.Info.License = new NSwag.OpenApiLicense
+                    {
+                        Name = "MIT",
+                        Url = "https://opensource.org/licenses/MIT"
+                    };
+                };
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -51,6 +74,10 @@ namespace AttendanceTracker
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseOpenApi();
+
+            app.UseSwaggerUi3();
 
             app.UseAuthorization();
 

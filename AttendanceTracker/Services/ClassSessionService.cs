@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AttendanceTracker.Models;
 using AttendanceTracker.Models.DTO;
@@ -16,7 +17,32 @@ namespace AttendanceTracker.Services
             _repositoryWrapper = repositoryWrapper;
         }
 
-        public async Task<ClassSession> Create(ClassSessionDto dto)
+        public async Task<ClassSession> GetByIdAsync(int id)
+        {
+            if (id <= 0)
+            {
+                throw new Exception("Bad Id");
+            }
+
+            var result =
+                await _repositoryWrapper
+                    .ClassSession
+                    .GetByIdAsync(id);
+
+            if (result == null)
+            {
+                throw new Exception($"ClassSession with Id {id} could not be found.");
+            }
+
+            return result;
+        }
+
+        public Task<ClassSession> EditAsync(int id, ClassSessionDto dto)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<ClassSession> CreateAsync(ClassSessionDto dto)
         {
             if (dto == null)
             {
@@ -26,8 +52,6 @@ namespace AttendanceTracker.Services
             var entity = new ClassSession
             {
                 Date = dto.Date,
-                StartTime = dto.StartTime,
-                EndTime = dto.EndTime,
                 StudentClass = await GetStudentClassByIdAsync(dto.StudentClassId), 
                 Students = await MapStudentIdsToStudents(dto.StudentIds)
             };
@@ -43,16 +67,21 @@ namespace AttendanceTracker.Services
         {
             var students = new HashSet<Student>();
 
-            foreach (var id in studentIds)
+            var enumerable = studentIds as int[] ?? studentIds.ToArray();
+            
+            if (enumerable.Any())
             {
-                var student = await _repositoryWrapper.Student.SearchByIdAsync(id);
-
-                if (student == null)
+                foreach (var id in enumerable)
                 {
-                    throw new Exception("No Student with the supplied Id was found.");
-                }
+                    var student = await _repositoryWrapper.Student.GetByIdAsync(id);
 
-                students.Add(student);
+                    if (student == null)
+                    {
+                        throw new Exception("No Student with the supplied Id was found.");
+                    }
+
+                    students.Add(student);
+                }
             }
 
             return students;
@@ -61,7 +90,7 @@ namespace AttendanceTracker.Services
         private async Task<StudentClass> GetStudentClassByIdAsync(int id)
         {
             var result =  
-                await _repositoryWrapper.StudentClass.SearchByIdAsync(id);
+                await _repositoryWrapper.StudentClass.GetByIdAsync(id);
 
             if (result == null)
             {

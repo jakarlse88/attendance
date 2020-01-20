@@ -6,6 +6,8 @@ namespace AttendanceTracker.Services
 {
     public interface IClassSessionService
     {
-        Task<ClassSession> Create(ClassSessionDto dto);
+        Task<ClassSession> CreateAsync(ClassSessionDto dto);
+        Task<ClassSession> GetByIdAsync(int id);
+        Task<ClassSession> EditAsync(int id, ClassSessionDto dto);
     }
 }

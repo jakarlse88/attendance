@@ -1,79 +1,106 @@
-using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using AttendanceTracker.Data;
 using AttendanceTracker.Models;
 using AttendanceTracker.Repositories;
-using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace AttendanceTracker.Test
 {
+    [SuppressMessage("ReSharper", "ConvertToUsingDeclaration")]
     public class RepositoryWrapperTests
     {
-        private DbContextOptions<ApplicationDbContext> BuildTestDbOptions() 
+        [Fact]
+        public void TestClassSession()
         {
-            return new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
+            // Arrange
+            var options = TestUtilities.BuildTestDbOptions();
+
+            IClassSessionRepository repo;
+            
+            using (var context = new ApplicationDbContext(options))
+            {
+                var repoWrapper = new RepositoryWrapper(context);
+
+                // Act
+                repo = repoWrapper.ClassSession;
+            }
+
+            // Assert
+            Assert.NotNull(repo);
+            Assert.IsAssignableFrom<IClassSessionRepository>(repo);
         }
 
         [Fact]
-        public void TestRepositoryWrapperClassSessionAddNullEntity()
+        public void TestStudentClass()
         {
             // Arrange
-            var options = BuildTestDbOptions();
+            var options = TestUtilities.BuildTestDbOptions();
 
-            using (var context = new ApplicationDbContext(options))
-            {
-                context.Database.EnsureCreated();
-                
-                var repoWrapper = new RepositoryWrapper(context);
-                
-                Assert.Empty(context.ClassSession);
-                
-                // Act
-                repoWrapper.ClassSession.Add(null);
-                
-                repoWrapper.Save();
-            }
+            IStudentClassRepository repo;
             
-            // Assert
             using (var context = new ApplicationDbContext(options))
             {
-                Assert.Empty(context.ClassSession);
+                var repoWrapper = new RepositoryWrapper(context);
 
-                context.Database.EnsureDeleted();
+                // Act
+                repo = repoWrapper.StudentClass;
             }
+
+            // Assert
+            Assert.NotNull(repo);
+            Assert.IsAssignableFrom<IStudentClassRepository>(repo);
         }
 
         [Fact]
-        public void TestRepositoryWrapperClassSessionAddNonNullEntity()
+        public void TestStudent()
         {
             // Arrange
-            var options = BuildTestDbOptions();
-            
-            var testEntity = new ClassSession();
+            var options = TestUtilities.BuildTestDbOptions();
 
+            IStudentRepository repo;
+            
             using (var context = new ApplicationDbContext(options))
+            {
+                var repoWrapper = new RepositoryWrapper(context);
+
+                // Act
+                repo = repoWrapper.Student;
+            }
+
+            // Assert
+            Assert.NotNull(repo);
+            Assert.IsAssignableFrom<IStudentRepository>(repo);
+        }
+
+        [Fact]
+        public async Task TestSaveAsync()
+        {
+            // Arrange
+            var options = TestUtilities.BuildTestDbOptions();
+
+            await using (var context = new ApplicationDbContext(options))
             {
                 context.Database.EnsureCreated();
                 
+                Assert.Empty(context.ClassSession);
+
+                context.ClassSession.Add(new ClassSession());
+                
                 var repoWrapper = new RepositoryWrapper(context);
                 
-                Assert.Empty(context.ClassSession);
-                
                 // Act
-                repoWrapper.ClassSession.Add(testEntity);
-                
-                repoWrapper.Save();
+                await repoWrapper.SaveAsync();
             }
-            
+
             // Assert
-            using (var context = new ApplicationDbContext(options))
+            await using (var context = new ApplicationDbContext(options))
             {
                 Assert.Single(context.ClassSession);
 
                 context.Database.EnsureDeleted();
             }
         }
+
     }
 }

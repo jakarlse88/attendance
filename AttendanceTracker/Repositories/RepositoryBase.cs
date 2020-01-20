@@ -15,12 +15,12 @@ namespace AttendanceTracker.Repositories
             _context = context;
         }
         
-        // public IQueryable<T> GetAll()
+        // public IEnumerable<T> GetAll()
         // {
         //     throw new System.NotImplementedException();
         // }
         
-        public async Task<T> SearchByIdAsync(int id)
+        public async Task<T> GetByIdAsync(int id)
         {
             var result = 
                 await _context
