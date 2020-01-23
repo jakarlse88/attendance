@@ -12,6 +12,10 @@ namespace AttendanceTracker.Models.DTO.Validators
 
             RuleForEach(x => x.StudentIds)
                 .GreaterThan(0);
+
+            RuleFor(x => x.StudentClassId)
+                .GreaterThanOrEqualTo(1)
+                .LessThanOrEqualTo(4);
         }
     }
 }

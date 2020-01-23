@@ -6,10 +6,15 @@ namespace AttendanceTracker.Models.DTO
    
     public class ClassSessionDto
     {
-        public DateTime Date { get; set; }
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
-        public int StudentClassId { get; set; }
-        public HashSet<int> StudentIds { get; set; }
+        public ClassSessionDto()
+        {
+            StudentIds = new HashSet<int>();
+        }
+        
+        public DateTime? Date { get; set; }
+        public DateTime? StartTime { get; set; }
+        public DateTime? EndTime { get; set; }
+        public int? StudentClassId { get; set; }
+        public IEnumerable<int> StudentIds { get; set; }
     }
 }

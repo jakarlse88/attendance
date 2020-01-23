@@ -8,6 +8,6 @@ namespace AttendanceTracker.Services
     {
         Task<ClassSession> CreateAsync(ClassSessionDto dto);
         Task<ClassSession> GetByIdAsync(int id);
-        Task<ClassSession> EditAsync(int id, ClassSessionDto dto);
+        Task<ClassSession> UpdateAsync(int id, ClassSessionDto dto);
     }
 }

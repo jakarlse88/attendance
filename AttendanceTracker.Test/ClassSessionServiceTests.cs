@@ -130,7 +130,7 @@ namespace AttendanceTracker.Test
         }
 
         [Fact]
-        public async Task TestCreateAsyncDtoDateMissing()
+        public async Task TestUpdateAsyncIdInvalid()
         {
             // Arrange
             var options = TestUtilities.BuildTestDbOptions();
@@ -143,69 +143,23 @@ namespace AttendanceTracker.Test
 
                 var service = new ClassSessionService(repoWrapper);
 
-                var testDto = new ClassSessionDto();
-
                 // Act
-                // Assert
-                var ex = await Assert.ThrowsAsync<ArgumentException>(
-                    () => service.CreateAsync(testDto));
+                async Task TestAction() =>
+                    await service.UpdateAsync(0, new ClassSessionDto());
 
-                Assert.Equal("ClassSession DTO cannot be null.",
+                // Assert
+                var ex = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(TestAction);
+
+                Assert.Equal(
+                    "No ClassSession matching the supplied Id was found. The Id you supplied was [0]. (Parameter 'id')",
                     ex.Message);
-            }
-        }
-
-        [Fact]
-        public void TestEditAsyncIdInvalid()
-        {
-            // Arrange
-            var service =
-                new ClassSessionService(
-                    Mock.Of<IRepositoryWrapper>());
-
-            // Act
-            async void TestAction() =>
-                await service.EditAsync(0, null);
-
-            // Assert
-            var ex = Assert.Throws<ArgumentException>(
-                () => (Action) TestAction);
-
-            Assert.Equal("No ClassSession with the supplied id was found.", ex.Message);
-        }
-
-        [Fact]
-        public async Task TestEditAsyncDtoNull()
-        {
-            // Arrange
-            var options = TestUtilities.BuildTestDbOptions();
-
-            await using (var context = new ApplicationDbContext(options))
-            {
-                context.Database.EnsureCreated();
-
-                var repoWrapper = new RepositoryWrapper(context);
-
-                var service = new ClassSessionService(repoWrapper);
-
-                ClassSessionDto testDto = null;
-
-                // Act
-                async void TestAction() =>
-                    await service.EditAsync(1, testDto);
-
-                // Assert
-                var ex = Assert.Throws<ArgumentException>(
-                    () => (Action) TestAction);
-
-                Assert.Equal("DTO is null.", ex.Message);
 
                 context.Database.EnsureDeleted();
             }
         }
 
         [Fact]
-        public async Task TestEditAsyncDtoStudentClassIdInvalid()
+        public async Task TestUpdateAsyncDtoNull()
         {
             // Arrange
             var options = TestUtilities.BuildTestDbOptions();
@@ -213,6 +167,39 @@ namespace AttendanceTracker.Test
             await using (var context = new ApplicationDbContext(options))
             {
                 context.Database.EnsureCreated();
+
+                var repoWrapper = new RepositoryWrapper(context);
+
+                var service = new ClassSessionService(repoWrapper);
+
+                // Act
+                async Task TestAction() =>
+                    await service.UpdateAsync(1, null);
+
+                // Assert
+                var ex = await Assert.ThrowsAsync<ArgumentNullException>(TestAction);
+
+                Assert.Equal(
+                    "You tried to call the ClassSessionService.UpdateAsync() method without passing it any data (the DTO was null). Please supply a valid ClassSessionDTO. (Parameter 'dto')",
+                    ex.Message);
+
+                context.Database.EnsureDeleted();
+            }
+        }
+
+        [Fact]
+        public async Task TestUpdateAsyncDtoStudentClassIdInvalid()
+        {
+            // Arrange
+            var options = TestUtilities.BuildTestDbOptions();
+
+            await using (var context = new ApplicationDbContext(options))
+            {
+                context.Database.EnsureCreated();
+
+                context.Add(new ClassSession {Id = 1});
+
+                context.SaveChanges();
 
                 var repoWrapper = new RepositoryWrapper(context);
 
@@ -224,15 +211,14 @@ namespace AttendanceTracker.Test
                 };
 
                 // Act
-                async void TestAction() =>
-                    await service.EditAsync(1, testDto);
+                async Task TestAction() =>
+                    await service.UpdateAsync(1, testDto);
 
                 // Assert
-                var ex = Assert.Throws<ArgumentException>(
-                    () => (Action) TestAction);
+                var ex = await Assert.ThrowsAsync<ArgumentException>(TestAction);
 
                 Assert.Equal(
-                    "No StudentClass with the supplied Id was found.",
+                    $"No StudentClass matching the supplied Id was found. The Id you supplied was [{testDto.StudentClassId}].",
                     ex.Message);
 
                 context.Database.EnsureDeleted();
@@ -240,7 +226,7 @@ namespace AttendanceTracker.Test
         }
 
         [Fact]
-        public async Task TestEditAsyncDtoStudentIdsContainingInvalid()
+        public async Task TestUpdateAsyncDtoStudentIdsContainingInvalid()
         {
             // Arrange
             var options = TestUtilities.BuildTestDbOptions();
@@ -249,32 +235,36 @@ namespace AttendanceTracker.Test
             {
                 context.Database.EnsureCreated();
 
+                context.ClassSession.Add(new ClassSession {Id = 1});
+
+                context.SaveChanges();
+
                 var repoWrapper = new RepositoryWrapper(context);
 
                 var service = new ClassSessionService(repoWrapper);
 
                 var testDto = new ClassSessionDto
                 {
-                    StudentClassId = 1,
-                    StudentIds = new HashSet<int> {-666}
+                    StudentIds = new HashSet<int> {666}
                 };
 
                 // Act
-                async void TestAction() =>
-                    await service.EditAsync(1, testDto);
+                async Task TestAction() =>
+                    await service.UpdateAsync(1, testDto);
 
                 // Assert
-                var ex = Assert.Throws<ArgumentException>(
-                    () => (Action) TestAction);
+                var ex = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(TestAction);
 
-                Assert.Equal("No Student with the supplied Id was found.", ex.Message);
+                Assert.Equal(
+                    $"No Student matching the supplied Id was found. The Id you supplied was [{testDto.StudentIds.First()}]. (Parameter 'id')",
+                    ex.Message);
 
                 context.Database.EnsureDeleted();
             }
         }
 
         [Fact]
-        public async Task TestEditAsyncIdValidDtoValid()
+        public async Task TestUpdateAsyncIdValidDtoValid()
         {
             // Arrange
             var options = TestUtilities.BuildTestDbOptions();
@@ -309,7 +299,7 @@ namespace AttendanceTracker.Test
                 };
 
                 // Act
-                result = await service.EditAsync(1, testDto);
+                result = await service.UpdateAsync(1, testDto);
             }
 
             // Assert
